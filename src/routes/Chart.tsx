@@ -22,6 +22,7 @@ function Chart({ coinId }: ChartProps) {
         queryKey: ["ohlcv", coinId],
         queryFn: () => fetchCoinHistory(coinId),
         staleTime: 60_000,
+        refetchInterval: 10000,
     });
 
     if (isPending) return <h1>Loading...</h1>;
