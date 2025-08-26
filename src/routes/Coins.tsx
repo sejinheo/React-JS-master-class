@@ -73,8 +73,8 @@ function Coins() {
         staleTime: 60_000,
     });
 
-    if (isPending) return <Loader>Loading...</Loader>;
-    if (error) return <Loader>에러가 발생했습니다</Loader>;
+    //if (isPending) return <Loader>Loading...</Loader>;
+    //if (error) return <Loader>에러가 발생했습니다</Loader>;
    
     return (
         <Container>
