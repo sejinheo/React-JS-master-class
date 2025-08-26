@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCoins } from "../api";
 
 const Container = styled.div`
     padding: 0px 20px;
@@ -51,7 +53,7 @@ const Img = styled.img`
     margin-right: 10px;
 `;
 
-interface CoinInterface {
+interface ICoin {
     id: string,
     name: string,
     symbol: string,
@@ -62,29 +64,30 @@ interface CoinInterface {
 }
 
 function Coins() {
-    const [coins, setCoins] = useState<CoinInterface[]>([]);
-    const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        (async () => {
-            const response = await fetch("https://api.coinpaprika.com/v1/coins");
-            const json = await response.json();
-            setCoins(json.slice(0, 100));
-            setLoading(false);
-        })();
-    }, []);
+    // v5 문법: 옵션 객체 사용 + 제네릭으로 데이터 타입 지정
+    const { isPending, data, error } = useQuery<ICoin[]>({
+        queryKey: ["allCoins"],
+        queryFn: fetchCoins,
+        // 100개만 선택
+        select: (coins) => coins.slice(0, 100),
+        staleTime: 60_000,
+    });
+
+    if (isPending) return <Loader>Loading...</Loader>;
+    if (error) return <Loader>에러가 발생했습니다</Loader>;
+   
     return (
         <Container>
             <Header>
                 <Title>코인</Title>
             </Header>
-            {loading ? (<Loader>Loading...</Loader>) : (
                 <CoinList>
-                    {coins.map((coin) => (
+                    {data?.map((coin: ICoin) => (
                         <Coin key={coin.id}>
                             <Link
                                 to={{
                                     pathname: `/${coin.id}`,
-                                    state: { name: coin.name },
+                                    state: { name: coin.name }, // RRD v5에서만 사용 가능
                                 }}
                             >
                                 <Img
@@ -94,7 +97,6 @@ function Coins() {
                             </Link>
                         </Coin>))}
                 </CoinList>
-            )}
         </Container>
     );
 }
