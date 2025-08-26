@@ -170,7 +170,7 @@ function Coin() {
       if (infoError || tickersError) {
         return <Loader>Loading...</Loader>;
       }
-      
+
     return (
         <Container>
             <Header>
@@ -225,7 +225,7 @@ function Coin() {
                             <Price />
                         </Route>
                         <Route path={`/:coinId/chart`}>
-                            <Chart />
+                            <Chart coinId={coinId}/>
                         </Route>
                     </Switch>
                 </>
