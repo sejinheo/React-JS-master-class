@@ -21,11 +21,12 @@ const Header = styled.header`
 const CoinList = styled.ul``;
 
 const Coin = styled.li`
-    background-color: white;
+    background-color: ${(props) => props.theme.cardBgColor};
     color: ${(props) => props.theme.textColor};
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 10px;
+    border: 1px solid white;
     a {
         display: flex;
         align-items: center;
@@ -64,7 +65,11 @@ interface ICoin {
     type: string
 }
 
-function Coins() {
+interface ICoinsProps {
+    toggleDark: () => void;
+}
+
+function Coins({toggleDark}: ICoinsProps) {
     // v5 문법: 옵션 객체 사용 + 제네릭으로 데이터 타입 지정
     const { isPending, data, error } = useQuery<ICoin[]>({
         queryKey: ["allCoins"],
@@ -84,6 +89,7 @@ function Coins() {
             </Helmet>
             <Header>
                 <Title>코인</Title>
+                <button onClick={toggleDark}>Toggle Dark Mode</button>
             </Header>
                 <CoinList>
                     {data?.map((coin: ICoin) => (
