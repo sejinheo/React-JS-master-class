@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCoins } from "../api";
 import { Helmet } from "react-helmet";
+import { useSetRecoilState } from "recoil";
+import { isDarkAtom } from "../atoms";
 
 const Container = styled.div`
     padding: 0px 20px;
@@ -68,6 +70,8 @@ interface ICoin {
 interface ICoinsProps {}
 
 function Coins({}: ICoinsProps) {
+    const setterFn = useSetRecoilState(isDarkAtom);
+    const toggleDarkAtom = () => setterFn((prev) => !prev);
     // v5 문법: 옵션 객체 사용 + 제네릭으로 데이터 타입 지정
     const { isPending, data, error } = useQuery<ICoin[]>({
         queryKey: ["allCoins"],
@@ -87,6 +91,7 @@ function Coins({}: ICoinsProps) {
             </Helmet>
             <Header>
                 <Title>코인</Title>
+                <button onClick={toggleDarkAtom}>Toggle Mode</button>
             </Header>
                 <CoinList>
                     {data?.map((coin: ICoin) => (
