@@ -65,11 +65,9 @@ interface ICoin {
     type: string
 }
 
-interface ICoinsProps {
-    toggleDark: () => void;
-}
+interface ICoinsProps {}
 
-function Coins({toggleDark}: ICoinsProps) {
+function Coins({}: ICoinsProps) {
     // v5 문법: 옵션 객체 사용 + 제네릭으로 데이터 타입 지정
     const { isPending, data, error } = useQuery<ICoin[]>({
         queryKey: ["allCoins"],
@@ -89,7 +87,6 @@ function Coins({toggleDark}: ICoinsProps) {
             </Helmet>
             <Header>
                 <Title>코인</Title>
-                <button onClick={toggleDark}>Toggle Dark Mode</button>
             </Header>
                 <CoinList>
                     {data?.map((coin: ICoin) => (
