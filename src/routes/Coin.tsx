@@ -72,170 +72,246 @@ const Tab = styled.span<{ isActive: boolean }>`
   padding: 7px 0px;
   border-radius: 10px;
   color: ${(props) =>
-        props.isActive ? props.theme.accentColor : props.theme.textColor};
+    props.isActive ? props.theme.accentColor : props.theme.textColor};
   a {
     display: block;
   }
 `;
 
+const HomeBtn = styled(Link)` 
+  --accent: ${({ theme }) => theme?.accentColor || "#7c3aed"};
+
+appearance: none;
+-webkit-tap-highlight-color: transparent;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+
+padding: 10px 14px;
+border: 0;
+border-radius: 12px;
+background: var(--accent);
+color: #fff;
+
+font-weight: 600;
+font-size: 0.95rem;
+line-height: 1;
+
+cursor: pointer;
+user-select: none;
+
+box-shadow:
+  inset 0 1px 0 rgba(255, 255, 255, 0.18),
+  0 8px 18px rgba(0, 0, 0, 0.25);
+
+transition:
+  transform 120ms ease,
+  box-shadow 150ms ease,
+  filter 150ms ease;
+
+@media (hover: hover) {
+  &:hover {
+    filter: brightness(1.06) saturate(1.05);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      0 10px 22px rgba(0, 0, 0, 0.28);
+  }
+}
+
+&:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px 0 rgba(0, 0, 0, 0.15),
+    0 6px 12px rgba(0, 0, 0, 0.22);
+}
+
+&:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.18),
+    0 0 0 6px color-mix(in srgb, var(--accent), transparent 65%);
+}
+
+@supports not (color-mix(in srgb, red, transparent)) {
+  &:focus-visible {
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.18),
+      0 0 0 6px rgba(124, 58, 237, 0.35); 
+  }
+}
+
+&:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(20%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 0 rgba(0, 0, 0, 0);
+}
+`;
+
+const Center = styled.div`
+  display: flex;
+  justify-content: center; 
+`;
+
 interface RouteParams {
-    coinId: string;
+  coinId: string;
 }
 
 interface RouteState {
-    name: string;
+  name: string;
 }
 
 interface InfoData {
-    id: string;
-    name: string;
-    symbol: string;
-    rank: number;
-    is_new: boolean;
-    is_active: boolean;
-    type: string;
-    description: string;
-    message: string;
-    open_source: boolean;
-    started_at: string;
-    development_status: string;
-    hardware_wallet: boolean;
-    proof_type: string;
-    org_structure: string;
-    hash_algorithm: string;
-    first_data_at: string;
-    last_data_at: string;
+  id: string;
+  name: string;
+  symbol: string;
+  rank: number;
+  is_new: boolean;
+  is_active: boolean;
+  type: string;
+  description: string;
+  message: string;
+  open_source: boolean;
+  started_at: string;
+  development_status: string;
+  hardware_wallet: boolean;
+  proof_type: string;
+  org_structure: string;
+  hash_algorithm: string;
+  first_data_at: string;
+  last_data_at: string;
 }
 
 interface PriceData {
-    id: string;
-    name: string;
-    symbol: string;
-    rank: number;
-    circulating_supply: number;
-    total_supply: number;
-    max_supply: number;
-    beta_value: number;
-    first_data_at: string;
-    last_updated: string;
-    quotes: {
-        USD: {
-            ath_date: string;
-            ath_price: number;
-            market_cap: number;
-            market_cap_change_24h: number;
-            percent_change_1h: number;
-            percent_change_1y: number;
-            percent_change_6h: number;
-            percent_change_7d: number;
-            percent_change_12h: number;
-            percent_change_15m: number;
-            percent_change_24h: number;
-            percent_change_30d: number;
-            percent_change_30m: number;
-            percent_from_price_ath: number;
-            price: number;
-            volume_24h: number;
-            volume_24h_change_24h: number;
-        };
+  id: string;
+  name: string;
+  symbol: string;
+  rank: number;
+  circulating_supply: number;
+  total_supply: number;
+  max_supply: number;
+  beta_value: number;
+  first_data_at: string;
+  last_updated: string;
+  quotes: {
+    USD: {
+      ath_date: string;
+      ath_price: number;
+      market_cap: number;
+      market_cap_change_24h: number;
+      percent_change_1h: number;
+      percent_change_1y: number;
+      percent_change_6h: number;
+      percent_change_7d: number;
+      percent_change_12h: number;
+      percent_change_15m: number;
+      percent_change_24h: number;
+      percent_change_30d: number;
+      percent_change_30m: number;
+      percent_from_price_ath: number;
+      price: number;
+      volume_24h: number;
+      volume_24h_change_24h: number;
     };
+  };
 }
 
 function Coin() {
-    const { coinId } = useParams<RouteParams>();
-    const { state } = useLocation<RouteState>();
-    const priceMatch = useRouteMatch("/:coinId/price");
-    const chartMatch = useRouteMatch("/:coinId/chart");
-    const {
-        isPending: infoPending,
-        data: infoData,
-        error: infoError,
-      } = useQuery<InfoData>({
-        queryKey: ["info", coinId],
-        queryFn: () => fetchCoinInfo(coinId),
-        staleTime: 60_000,
-      });
-    
-      const {
-        isPending: tickersPending,
-        data: tickersData,
-        error: tickersError,
-      } = useQuery<PriceData>({
-        queryKey: ["tickers", coinId],
-        queryFn: () => fetchCoinTickers(coinId),
-        staleTime: 30_000,
-      });
-    
-      const loading = infoPending || tickersPending;
-      
-      if (infoError || tickersError) {
-        return <Loader>Loading...</Loader>;
-      }
+  const { coinId } = useParams<RouteParams>();
+  const { state } = useLocation<RouteState>();
+  const priceMatch = useRouteMatch("/:coinId/price");
+  const chartMatch = useRouteMatch("/:coinId/chart");
+  const {
+    isPending: infoPending,
+    data: infoData,
+    error: infoError,
+  } = useQuery<InfoData>({
+    queryKey: ["info", coinId],
+    queryFn: () => fetchCoinInfo(coinId),
+    staleTime: 60_000,
+  });
 
-    return (
-        <Container>
-            <Helmet>
-                <title>{state?.name ? state.name : loading ? "Loading..." : infoData?.name}</title>
-            </Helmet>
-            <Header>
-                <Title>
-                    {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
-                </Title>
-            </Header>
-            {loading ? (
-                <Loader>Loading...</Loader>
-            ) : (
-                <>
-                    <Overview>
-                        <OverviewItem>
-                            <span>Rank:</span>
-                            <span>{infoData?.rank}</span>
-                        </OverviewItem>
-                        <OverviewItem>
-                            <span>Symbol:</span>
-                            <span>${infoData?.symbol}</span>
-                        </OverviewItem>
-                        <OverviewItem>
-                            <span>Price:</span>
-                            <span>{tickersData?.quotes.USD.price.toFixed(3)}</span>
-                        </OverviewItem>
-                    </Overview>
-                    <Description>{infoData?.description}</Description>
-                    <Overview>
-                        <OverviewItem>
-                            <span>Total Suply:</span>
-                            <span>{tickersData?.total_supply}</span>
-                        </OverviewItem>
-                        <OverviewItem>
-                            <span>Max Supply:</span>
-                            <span>{tickersData?.max_supply}</span>
-                        </OverviewItem>
-                    </Overview>
+  const {
+    isPending: tickersPending,
+    data: tickersData,
+    error: tickersError,
+  } = useQuery<PriceData>({
+    queryKey: ["tickers", coinId],
+    queryFn: () => fetchCoinTickers(coinId),
+    staleTime: 30_000,
+  });
 
-                    <Tabs>
-                        <Tab isActive={chartMatch !== null}>
-                            <Link to={`/${coinId}/chart`}>Chart</Link>
-                        </Tab>
-                        <Tab isActive={priceMatch !== null}>
-                            <Link to={`/${coinId}/price`}>Price</Link>
-                        </Tab>
-                    </Tabs>
+  const loading = infoPending || tickersPending;
 
-                    <Link to={`/${coinId}/chart`}>Chart</Link>
-                    <Link to={`/${coinId}/price`}>Price</Link>
+  if (infoError || tickersError) {
+    return <Loader>Loading...</Loader>;
+  }
 
-                    <Switch>
-                        <Route path={`/:coinId/price`}>
-                            <Price />
-                        </Route>
-                        <Route path={`/:coinId/chart`}>
-                            <Chart coinId={coinId}/>
-                        </Route>
-                    </Switch>
-                </>
-            )}
-        </Container>
-    );
+  return (
+    <Container>
+      <Helmet>
+        <title>{state?.name ? state.name : loading ? "Loading..." : infoData?.name}</title>
+      </Helmet>
+      <Header>
+        <Title>
+          {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
+        </Title>
+      </Header>
+      {loading ? (
+        <Loader>Loading...</Loader>
+      ) : (
+        <>
+          <Overview>
+            <OverviewItem>
+              <span>Rank:</span>
+              <span>{infoData?.rank}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Symbol:</span>
+              <span>${infoData?.symbol}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Price:</span>
+              <span>{tickersData?.quotes.USD.price.toFixed(3)}</span>
+            </OverviewItem>
+          </Overview>
+          <Description>{infoData?.description}</Description>
+          <Overview>
+            <OverviewItem>
+              <span>Total Supply:</span>
+              <span>{tickersData?.total_supply}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Max Supply:</span>
+              <span>{tickersData?.max_supply}</span>
+            </OverviewItem>
+          </Overview>
+
+          <Tabs>
+            <Tab isActive={chartMatch !== null}>
+              <Link to={`/${coinId}/chart`}>Chart</Link>
+            </Tab>
+            <Tab isActive={priceMatch !== null}>
+              <Link to={`/${coinId}/price`}>Price</Link>
+            </Tab>
+          </Tabs>
+          <Center>
+            <HomeBtn to={`/`}>Coins</HomeBtn>
+          </Center>
+          <Switch>
+            <Route path={`/:coinId/price`}>
+              <Price />
+            </Route>
+            <Route path={`/:coinId/chart`}>
+              <Chart coinId={coinId} />
+            </Route>
+          </Switch>
+        </>
+      )}
+    </Container>
+  );
 }
 
 export default Coin;
